@@ -1,28 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Manager</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div id="app">
-        <h1>Task Manager</h1>
-        <form id="taskForm">
-            <input type="text" id="taskInput" placeholder="Enter a task" required minlength="3">
-            <button type="submit">Add Task</button>
-        </form>
-        <ul id="taskList"></ul>
-        <template id="taskTemplate">
-            <li class="task-item">
-                <span class="task-text"></span>
-                <button class="delete-btn">Delete</button>
-                <button class="complete-btn">Complete</button>
-            </li>
-        </template>
-        <div id="taskCount">Total tasks: 1</div>
-    </div>
-    <script src="script.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./style.css" />
+    <script src="./script.js" defer></script>
+    <title>Todo</title>
+  </head>
+  <body>
+    <section class="todo">
+      <h2>To-do list</h2>
+      <div class="input">
+        <input
+          type="text"
+          class="input-field"
+          id="todoInput"
+          placeholder="Add a new todo"
+        />
+        <button class="btn">Add</button>
+      </div>
+      <ul class="scroll">
+        <li id="todoList"></li>
+      </ul>
+      <div>
+        <hr class="counter" />
+        <div class="counter-container">
+          <p><span id="todoCount">0</span> items total</p>
+          <button id="deleteButton">Delete All</button>
+        </div>
+      </div>
+    </section>
+    <footer>
+      <div class="footer">
+        <p class="made-by">Made By</p>
+        <p class="author">Claud Cornetti</p>
+        <p class="copyright">© 2024</p>
+      </div>
+    </footer>
+  </body>
 </html>

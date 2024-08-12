@@ -1,78 +1,87 @@
-// DOM element caching
-const taskForm = document.getElementById('taskForm');
-const taskInput = document.getElementById('taskInput');
-const taskList = document.querySelector('#taskList');
-const taskTemplate = document.getElementById('taskTemplate');
-const taskCount = document.getElementById('taskCount');
+// Retrieve todo from local storage or initialize an empty array
+let todo = JSON.parse(localStorage.getItem("todo")) || [];
+const todoInput = document.getElementById("todoInput");
+const todoList = document.getElementById("todoList");
+const todoCount = document.getElementById("todoCount");
+const addButton = document.querySelector(".btn");
+const deleteButton = document.getElementById("deleteButton");
 
-// Event listeners
-taskForm.addEventListener('submit', addTask);
-taskList.addEventListener('click', handleTaskAction);
-
-// BOM methods
-window.addEventListener('load', () => {
-    alert('Welcome to the Task Manager!');
+// Initialize
+document.addEventListener("DOMContentLoaded", function () {
+  addButton.addEventListener("click", addTask);
+  todoInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevents default Enter key behavior
+      addTask();
+    }
+  });
+  deleteButton.addEventListener("click", deleteAllTasks);
+  displayTasks();
 });
 
-window.addEventListener('beforeunload', (event) => {
-    event.preventDefault();
-});
-
-// Function to add a new task
-function addTask(e) {
-    e.preventDefault();
-    
-    // DOM-based form validation
-    if (taskInput.value.trim().length < 3) {
-        taskInput.setCustomValidity('Task must be at least 3 characters long');
-        taskInput.reportValidity();
-        return;
-    } else {
-        taskInput.setCustomValidity('');
-    }
-
-    const taskText = taskInput.value.trim();
-    const taskElement = document.importNode(taskTemplate.content, true);
-    
-    taskElement.querySelector('.task-text').textContent = taskText;
-    
-    taskList.appendChild(taskElement);
-    taskInput.value = '';
-    
-    updateTaskCount();
+function addTask() {
+  const newTask = todoInput.value.trim();
+  if (newTask !== "") {
+    todo.push({ text: newTask, disabled: false });
+    saveToLocalStorage();
+    todoInput.value = "";
+    displayTasks();
+  }
 }
 
-// Function to handle task actions (delete or complete)
-function handleTaskAction(e) {
-    if (e.target.classList.contains('delete-btn')) {
-        e.target.closest('li').remove();
-        updateTaskCount();
-    } else if (e.target.classList.contains('complete-btn')) {
-        const taskItem = e.target.closest('li');
-        taskItem.classList.toggle('completed');
-        e.target.textContent = taskItem.classList.contains('completed') ? 'Undo' : 'Complete';
-    }
+function displayTasks() {
+  todoList.innerHTML = "";
+  todo.forEach((item, index) => {
+    const p = document.createElement("p");
+    p.innerHTML = `
+      <div class="todo-container">
+        <input type="checkbox" class="todo-checkbox" id="input-${index}" ${
+      item.disabled ? "checked" : ""
+    }>
+        <p id="todo-${index}" class="${
+      item.disabled ? "disabled" : ""
+    }" onclick="editTask(${index})">${item.text}</p>
+      </div>
+    `;
+    p.querySelector(".todo-checkbox").addEventListener("change", () =>
+      toggleTask(index)
+    );
+    todoList.appendChild(p);
+  });
+  todoCount.textContent = todo.length;
 }
 
-// Function to update task count
-function updateTaskCount() {
-    const tasks = taskList.children;
-    taskCount.textContent = `Total tasks: ${tasks.length}`;
-    
-    // Iterate over tasks to change their appearance
-    for (let i = 0; i < tasks.length; i++) {
-        tasks[i].style.backgroundColor = i % 2 === 0 ? '#f9f9f9' : '#ffffff';
+function editTask(index) {
+  const todoItem = document.getElementById(`todo-${index}`);
+  const existingText = todo[index].text;
+  const inputElement = document.createElement("input");
+
+  inputElement.value = existingText;
+  todoItem.replaceWith(inputElement);
+  inputElement.focus();
+
+  inputElement.addEventListener("blur", function () {
+    const updatedText = inputElement.value.trim();
+    if (updatedText) {
+      todo[index].text = updatedText;
+      saveToLocalStorage();
     }
+    displayTasks();
+  });
 }
 
-// Creating a new element
-const footer = document.createElement('footer');
-footer.innerHTML = '<p>Created by Your Name</p>';
-document.body.appendChild(footer);
+function toggleTask(index) {
+  todo[index].disabled = !todo[index].disabled;
+  saveToLocalStorage();
+  displayTasks();
+}
 
-// Modifying element attributes
-taskList.setAttribute('aria-live', 'polite');
+function deleteAllTasks() {
+  todo = [];
+  saveToLocalStorage();
+  displayTasks();
+}
 
-// Using parent-child relationship
-console.log('First task:', taskList.firstChild);
-console.log('Last task:', taskList.lastChild);
+function saveToLocalStorage() {
+  localStorage.setItem("todo", JSON.stringify(todo));
+}
